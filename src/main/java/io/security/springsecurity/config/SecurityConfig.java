@@ -10,6 +10,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -64,7 +67,16 @@ public class SecurityConfig {
                                 response.sendRedirect("/login");
                             }
                         })
-                        .deleteCookies("remember-me"));
+                        .deleteCookies("remember-me"))
+                .rememberMe((remember) -> remember
+                        .rememberMeParameter("remember")
+                        .tokenValiditySeconds(3600)
+                        .userDetailsService(new UserDetailsService() {
+                            @Override
+                            public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+                                return null;
+                            }
+                        }));
         return http.build();
     }
 }
