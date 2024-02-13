@@ -25,7 +25,6 @@ public class SecurityConfig {
                 .authorizeHttpRequests((authorize) -> authorize
                         .anyRequest().authenticated())
                 .formLogin((login) -> login
-                        .loginPage("/loginPage")
                         .defaultSuccessUrl("/")
                         .failureUrl("/login")
                         .usernameParameter("userId")
