@@ -11,7 +11,10 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -31,6 +34,9 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((authorize) -> authorize
+                        .requestMatchers("/user").hasRole("USER")
+                        .requestMatchers("/admin/pay").hasRole("ADMIN")
+                        .requestMatchers("/admin/**").hasAnyRole("SYS", "ADMIN")
                         .anyRequest().authenticated())
                 .formLogin((login) -> login
                         .defaultSuccessUrl("/")
@@ -79,5 +85,13 @@ public class SecurityConfig {
                         .maxSessionsPreventsLogin(false)
                         .and().sessionFixation().changeSessionId());
         return http.build();
+    }
+
+    @Bean
+    public static UserDetailsService userDetailsService() {
+        UserDetails user = User.builder().username("user").password("{noop}1111").roles("USER").build();
+        UserDetails sys = User.builder().username("sys").password("{noop}1111").roles("SYS", "USER").build();
+        UserDetails admin = User.builder().username("admin").password("{noop}1111").roles("ADMIN", "SYS", "USER").build();
+        return new InMemoryUserDetailsManager(user, sys, admin);
     }
 }
